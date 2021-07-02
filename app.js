@@ -19,6 +19,10 @@ app.use(express.urlencoded({limit: '50mb', extended: false}));
 
 // Body
 
+if (!fs.existsSync(directoryPath)){
+    fs.mkdirSync(directoryPath);
+}
+
 // Returns all the image in the directory
 app.get('/', (req, res) => {
   let arrayOfFiles = [];
@@ -42,12 +46,17 @@ app.get('/:file', (req, res) => {
 // Saves the image
 app.put('/file', (req, res) => {
   let { title, base64 } = req.body;
-  if(fs.existsSync(directoryPath + title)){
-    const titleArray = title.split('.')
-    title = `${titleArray[0]}_${Math.floor(Math.random() * 100)}.${titleArray[1]}`
+
+  let newTitle = title.split('.')[0]
+
+  if(fs.existsSync(directoryPath + newTitle + ".png")){
+    newTitle = `${newTitle}_${Math.floor(Math.random() * 100)}.png`
+  }else{
+    newTitle = `${newTitle}.png`
   }
+
   if(is_(base64)){
-    fs.writeFile(directoryPath + title, base64, 'base64', (err) => {
+    fs.writeFile(directoryPath + newTitle, base64, 'base64', (err) => {
       if(err) return res.json({"status": "failure... oniiichan messed up >///<"});
       res.json({"status": "success... owo"})
     })
